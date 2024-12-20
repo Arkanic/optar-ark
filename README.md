@@ -4,10 +4,11 @@ This is a tool to represent and recover data (such as files, strings of text, or
 The original project, [Twibright OPTical ARchiver](http://ronja.twibright.com/optar/), was released in 2007. This fork aims to enhance the usability and modularity of the program, with the optimal end goal in mind being a web-based client.
 
 ## Features (intended)
-- Support for configuration customisation without recompiling the source code
-- Support for multiple generic paper sizes without having to do annoying math
-- Modularisation of code so that it a) is all in one binary for cli usage and b) can be interfaced with as a c-style library
-- Cross-compilation to WASM
+- [ ] Support for configuration customisation without recompiling the source code
+- [ ] Support for multiple generic paper sizes without having to do annoying math
+- [ ] Look into interleaving golay/data sections between pages for high page counts
+- [ ] Modularisation of code so that it a) is all in one binary for cli usage and b) can be interfaced with as a c-style library
+- [ ] Cross-compilation to WASM
 
 ## Building
 The following libraries are required:

@@ -5,7 +5,7 @@
 
 #include "parity.h"
 
-int dodecahedron[12][5]={
+int dodecahedron[12][5] = {
 	/* For each dodecahedron face (number in the comment, 1-12) there
 	 * is a list of the 5 adjacent faces (1-12). See golay.svg for
 	 * a drawing. */
@@ -25,40 +25,36 @@ int dodecahedron[12][5]={
 
 unsigned parities[12];
 
-int main(int argc, char ** argv)
-{
-	unsigned mask, p, f;
-	unsigned input;
-	unsigned prty; /* parity */
+int main(int argc, char *argv[]) {
 
-	for (p=0;p<12;p++){
-		mask=0xfff; /* All dodecahedron faces */
-		for (f=0;f<5;f++)
-			mask^=1U<<(dodecahedron[p][f]-1);
-		parities[p]=mask;
+	for(int p=0; p < 12; p++) {
+		unsigned int mask = 0xfff; /* All dodecahedron faces */
+		for(int f = 0; f < 5; f++) mask ^= 1U << (dodecahedron[p][f] - 1);
+		parities[p] = mask;
 	}
 
 	printf("unsigned long golay_codes[4096]={\n");
 
-	for (input=0;input<4096;input++){
-		unsigned n_ones;
-		unsigned long codeword;
+	for (unsigned int input = 0; input < 4096; input++) {
 
-		prty=0;
-		for (p=0;p<12;p++){
-			prty<<=1;
-			prty|=parity(input&parities[p]);
+		unsigned int prty = 0; // parity
+		for(int p = 0; p < 12; p++) {
+			prty <<= 1;
+			prty |= parity(input & parities[p]);
 		}
-		codeword=((unsigned long)input<<12)|prty;
-		n_ones=ones(codeword);
-		printf((input==4095?"0x%06lx\n":"0x%06lx,\n"),codeword);
-		assert(n_ones==0
-			||n_ones==8
-			||n_ones==12
-			||n_ones==16
-			||n_ones==24);
+
+		unsigned long codeword = ((unsigned long)input << 12) | prty;
+		unsigned int n_ones = ones(codeword);
+		printf((input == 4095 ? "0x%06lx\n" : "0x%06lx,\n"), codeword);
+
+		assert(n_ones == 0
+			 ||n_ones == 8
+			 ||n_ones == 12
+			 ||n_ones == 16
+			 ||n_ones == 24);
 	}
 
 	printf("};\n");
+	
 	return 0;
 }
