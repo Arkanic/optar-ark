@@ -1,5 +1,4 @@
 # Arkanic's Twibright-OPTAR
-
 This is a tool to represent and recover data (such as files, strings of text, or tarballs) with 2D barcodes on a printed medium, resulting in 100-200KB of data per page.
 
 The original project, [Twibright OPTical ARchiver](http://ronja.twibright.com/optar/), was released in 2007. This fork aims to enhance the usability and modularity of the program, with the optimal end goal in mind being a web-based client.
