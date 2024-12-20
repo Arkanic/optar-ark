@@ -1,6 +1,6 @@
 LDFLAGS=-L/usr/local/lib
 CFLAGS=-O3 -Wall -Wuninitialized -fomit-frame-pointer -funroll-loops \
-	-fstrength-reduce -DNODEBUG `libpng-config --I_opts`
+	-fstrength-reduce -DNODEBUG -I/usr/local/include/libpng `libpng-config --I_opts`
 LDLIBS=-lpng -lz -lm
 
 all: optar unoptar
@@ -16,34 +16,24 @@ uninstall:
 	rm /usr/local/bin/pgm2ps
 
 clean:
-	rm -f optar unoptar golay golay_codes.c *.o
+	rm -rf out optar unoptar
 
-common.o: common.c optar.h
+out/:
+	mkdir out
+
+out/%.o: optark/%.c out/
 	gcc -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
 
-parity.o: parity.c
-	gcc -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
-
-optar.o: optar.c optar.h font.h parity.h
-	gcc -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
-
-golay_codes.o: golay_codes.c
-	gcc -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
-
-golay.o: golay.c parity.h
-	gcc -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
-
-unoptar.o: unoptar.c optar.h parity.h
-	gcc -c -I/usr/local/include/libpng $(CPPFLAGS) $(CFLAGS) -o $@ $<
-
-optar: optar.o common.o golay_codes.o parity.o
+optar: out/optar.o out/common.o out/golay_codes.o out/parity.o
 	gcc $(LDFLAGS) -o $@ $^
 
-golay_codes.c: golay
+out/golay_codes.c: out/golay
 	./$< > $@
 
-golay: golay.o parity.o
+out/golay: out/golay.o out/parity.o
 	gcc $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
-unoptar: unoptar.o common.o golay_codes.o parity.o
+unoptar: out/unoptar.o out/common.o out/golay_codes.o out/parity.o
 	gcc $(LDFLAGS) -o $@ $^ $(LDLIBS)
+
+.PHONY: clean all install uninstall
