@@ -52,15 +52,14 @@
 #define FEC_SMALLBITS 12
 #else
 /* Hamming */
-#define FEC_LARGEBITS (1 < <FEC_ORDER)
+#define FEC_LARGEBITS (1 << FEC_ORDER)
 #define FEC_SMALLBITS (FEC_LARGEBITS - 1 - FEC_ORDER)
 #endif
 
 /* Hamming net channel capacity */
 #define FEC_SYMS (TOTALBITS / FEC_LARGEBITS)
 #define NETBITS (FEC_SYMS * FEC_SMALLBITS) /* Net payload bits */
-#define USEDBITS (FEC_SYMS * FEC_LARGEBITS) /* Used raw bits to store
-						     Hamming symbols */
+#define USEDBITS (FEC_SYMS * FEC_LARGEBITS) /* Used raw bits to store Hamming symbols */
 
 /* Functions from common.c */
 extern unsigned long parity(unsigned long in);
