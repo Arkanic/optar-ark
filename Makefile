@@ -38,10 +38,10 @@ out/golay: out/lib/golay.o out/lib/parity.o
 out/golay_codes.c: out/golay
 	./$< > $@
 
-unoptar: out/unoptar.o out/liboptark.a
+unoptar: out/unoptar.o out/liboptark.a out/arg.o
 	gcc $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
-optar: out/optar.o out/liboptark.a
+optar: out/optar.o out/liboptark.a out/arg.o
 	gcc $(LDFLAGS) -o $@ $^
 
 out/liboptark.a: out/lib/liboptar.o out/lib/libunoptar.o out/lib/common.o out/lib/parity.o out/golay_codes.o

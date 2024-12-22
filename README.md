@@ -6,7 +6,7 @@ This is a tool to represent and recover data (such as files, strings of text, or
 The original project, [Twibright OPTical ARchiver](http://ronja.twibright.com/optar/), was released in 2007. This fork aims to enhance the usability and modularity of the program, with the optimal end goal in mind being a web-based client.
 
 ## Features (intended)
-- [66%] Support for configuration customisation without recompiling the source code
+- [90%] Support for configuration customisation without recompiling the source code
 - [x] Add support for actually parsing the number string passed to `unoptar` to change unparse config, instead of ignoring and using compiled values in optar.h 
 - [ ] Commandline support for configuring standard paper sizes, with custom KB per page densities
 - [ ] Support for multiple generic paper sizes without having to do annoying math
