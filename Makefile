@@ -32,16 +32,19 @@ out/$(SUBDIRS)/%.o: optark/$(SUBDIRS)/%.c out/ $(SUBDIRS)
 out/%.o: optark/%.c out/
 	gcc -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
 
-optar: out/optar.o out/lib/liboptar.o out/lib/common.o out/lib/parity.o out/golay_codes.o 
-	gcc $(LDFLAGS) -o $@ $^
+out/golay: out/golay.o out/lib/parity.o
+	gcc $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 out/golay_codes.c: out/golay
 	./$< > $@
 
-out/golay: out/golay.o out/lib/parity.o
+unoptar: out/unoptar.o out/liboptark.a
 	gcc $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
-unoptar: out/unoptar.o out/lib/libunoptar.o out/lib/common.o out/lib/parity.o out/golay_codes.o
-	gcc $(LDFLAGS) -o $@ $^ $(LDLIBS)
+optar: out/optar.o out/liboptark.a
+	gcc $(LDFLAGS) -o $@ $^
+
+out/liboptark.a: out/lib/liboptar.o out/lib/libunoptar.o out/lib/common.o out/lib/parity.o out/golay_codes.o
+	ar -rcs $@ $^
 
 .PHONY: clean all install uninstall
