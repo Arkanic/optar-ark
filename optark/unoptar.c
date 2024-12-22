@@ -1097,8 +1097,8 @@ static void print_chan_info(void) {
 	fprintf(stderr, "Unformatted channel capacity %G kB, ",                      (double)constants.width * format_height / 8 / 1000);
 	fprintf(stderr, "formatted raw channel capacity %G kB, ",                    (double)constants.totalbits / 8 / 1000);
 	fprintf(stderr, "net EC payload capacity %G kB, ",                           (double)constants.netbits / 8 / 1000);
-	fprintf(stderr, "%llu EC symbols, ",                                          constants.fec_syms);
-	fprintf(stderr, "%llu bits unused (incomplete Hamming symbol), ",             constants.totalbits-constants.usedbits);
+	fprintf(stderr, "%llu EC symbols, ",                                         constants.fec_syms);
+	fprintf(stderr, "%llu bits unused (incomplete Hamming symbol), ",            constants.totalbits-constants.usedbits);
 	fprintf(stderr, "border taking %G%% of unformatted capacity, ",              100 * (1 - (double)(constants.data_width) * (constants.data_height) / constants.width / format_height));
 	fprintf(stderr, "border with crosses taking %G%% of unformatted capacity, ", 100 * (1 - (double)(constants.totalbits) / constants.width / format_height));
 	fprintf(stderr,"border with crosses and EC taking %G%% of "

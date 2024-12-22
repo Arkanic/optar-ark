@@ -21,10 +21,10 @@ clean:
 	rm -rf out optar unoptar
 
 out/:
-	mkdir out
+	mkdir -p out
 
 $(SUBDIRS):
-	mkdir out/$(SUBDIRS)
+	mkdir -p out/$(SUBDIRS)
 
 out/$(SUBDIRS)/%.o: optark/$(SUBDIRS)/%.c out/ $(SUBDIRS)
 	gcc -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
