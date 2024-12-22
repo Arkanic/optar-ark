@@ -1,70 +1,83 @@
 /* (c) GPL 2007 Karel 'Clock' Kulhavy, Twibright Labs */
+// Copyright (c) GPL 2024 Arkanic <https://github.com/Arkanic>
 
 #define MIN(x,y) ((x) < (y) ? (x) : (y))
 #define MAX(x,y) ((x) > (y) ? (x) : (y))
 
-#define BORDER 2 /* In pixels. Thickness of the border */
-#define CHALF 3 /* Size of the cross half. Size of the cross is CHALF*2 x CHALF*2. */
-#define CPITCH 24 /* Distance between cross centers */
-
-/* XCROSSES A4 65, US Letter 67. */
-#define XCROSSES 65 /* Number of crosses horizontally */
-/* YCROSSES A4 93, US Letter 87. */
-#define YCROSSES 93 /* Number of crosses vertically */
-
-#define DATA_WIDTH (CPITCH * (XCROSSES - 1) + 2 * CHALF) /* The rectangle occupied by the data and crosses */
-#define DATA_HEIGHT (CPITCH * (YCROSSES - 1) + 2 * CHALF)
-#define WIDTH (2 * BORDER + DATA_WIDTH) /* In pixels, including the border */
-/* In pixels, including the border and the label */
-
 #define TEXT_WIDTH 13 /* Width of a single letter */
+#define TEXT_HEIGHT 24 /* Height of a single letter */
 
-/* Definitions for seq2xy */
+/* configuration struct of optar page */
+struct PageFormat {
+	// provided values
+	// xcrosses: A4=65, US Letter=67 | ycrosses: A4=93, US Letter=87
+	int xcrosses; // number of horizontal crosses
+	int ycrosses; // number of vertical crosses
 
-/* Properties of the narrow horizontal strip, with crosses */
-#define NARROWHEIGHT (2 * CHALF)
-#define GAPWIDTH (CPITCH - 2 * CHALF)
-#define NARROWWIDTH (GAPWIDTH * (XCROSSES - 1)) /* Useful width */
-#define NARROWPIXELS (NARROWHEIGHT * NARROWWIDTH) /* Useful pixels */
+	int cpitch; // Distance between cross centres
+	int chalf; // Size of the cross half. Size of the cross is chalf*2 x chalf*2
 
-/* Properties of the wide horizontal strip, without crosses */
-#define WIDEHEIGHT GAPWIDTH
-#define WIDEWIDTH (WIDTH - 2 * BORDER)
-#define WIDEPIXELS (WIDEHEIGHT * WIDEWIDTH)
+	int fec_order; // hamming codes with pairty
+	/* Can be 2 to 5 inclusive
+		5 is 26/32
+		4 is 11/16
+		3 is 4/8
+		2 is 4/1
+		1 is golay codes
+	*/
 
-/* Amount of raw payload pixels in one narrow-wide strip pair */
-#define REPHEIGHT (NARROWHEIGHT + WIDEHEIGHT)
-#define REPPIXELS (WIDEPIXELS + NARROWPIXELS)
+	int border; // thickness of border in pixels
+	int text_height; // height of page footer
+};
 
-/* Total bits before hamming including the unused */
-#define TOTALBITS ((long)REPPIXELS * (YCROSSES - 1) + NARROWPIXELS)
+/* Computed constants generated from format of optar page */
+struct PageConstants {
+	struct PageFormat *format;
 
-/* Hamming codes with parity */
-#define FEC_ORDER 1 /* Can be 2 to 5 inclusive. 
-			   5 is 26/32,
-			   4 is 11/16,
-			   3 is 4/8,
-			   2 is 4/1
-			   1 is golay codes */
-#if FEC_ORDER == 1
-/* Golay */
-#define FEC_LARGEBITS 24
-#define FEC_SMALLBITS 12
-#else
-/* Hamming */
-#define FEC_LARGEBITS (1 << FEC_ORDER)
-#define FEC_SMALLBITS (FEC_LARGEBITS - 1 - FEC_ORDER)
-#endif
+	// generated values from format
 
-/* Hamming net channel capacity */
-#define FEC_SYMS (TOTALBITS / FEC_LARGEBITS)
-#define NETBITS (FEC_SYMS * FEC_SMALLBITS) /* Net payload bits */
-#define USEDBITS (FEC_SYMS * FEC_LARGEBITS) /* Used raw bits to store Hamming symbols */
+	unsigned int data_width; // the rectangle bounds of data/crosses in pixels
+	unsigned int data_height;
+	unsigned long width; // width in pixels with border
+	unsigned long height;
+
+	// definitions for seq2xy
+
+	// Properties of the narrow horizontal strip, with crosses
+	unsigned int narrowheight;
+	unsigned int gapwidth;
+	unsigned long narrowwidth; // Useful width
+	unsigned long long narrowpixels; // Useful pixels
+
+	// Properties of the wide horizontal strip, without crosses
+	unsigned int wideheight;
+	unsigned long widewidth;
+	unsigned long long widepixels;
+
+	// Amount of raw payload pixels in one narrow-wide strip pair
+	unsigned int repheight;
+	unsigned long long reppixels;
+
+	// Total bits before hamming including the unused
+	unsigned long long totalbits;
+
+	// changes based on golay/hamming via fec_order
+	unsigned int fec_largebits;
+	unsigned int fec_smallbits;
+
+	// Hamming net channel capacity
+	unsigned long long fec_syms;
+	unsigned long long netbits; // Net payload bits
+	unsigned long long usedbits; // Used raw bits to store hamming/golay symbols
+};
 
 /* Functions from common.c */
+extern void compute_constants(struct PageConstants *out, struct PageFormat *format);
+extern void print_pageconstants(struct PageConstants *constants);
+extern void prefill_pageformat(struct PageFormat *out);
 extern unsigned long parity(unsigned long in);
-extern int is_cross(unsigned int x, unsigned int y);
-extern void seq2xy(int *x, int *y, unsigned seq);
+extern int is_cross(struct PageConstants *constants, unsigned int x, unsigned int y);
+extern void seq2xy(struct PageConstants *constants, int *x, int *y, unsigned seq);
 
 /* Counts number of '1' bits */
 unsigned ones(unsigned long in);

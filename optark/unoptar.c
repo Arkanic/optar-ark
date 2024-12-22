@@ -1474,6 +1474,7 @@ static void parse_format(char *format) {
 	unsigned int dummy;
 
 	// LOOKHERE
+	// 0-XCROSSES-YCROSSES-CPITCH-CHALF-FEC_ORDER-BORDER-TEXT_HEIGHT
 	sscanf(format, "%u-%u-%u-%u-%u-%u-%u-%u",
 			&dummy,
 			&dummy,

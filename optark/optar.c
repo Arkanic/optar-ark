@@ -1,4 +1,5 @@
 /* (c) GPL 2007 Karel 'Clock' Kulhavy, Twibright Labs */
+// Copyright (c) GPL 2024 Arkanic <https://github.com/Arkanic>
 
 #include <stdio.h> /* getchar */
 #include <stdlib.h> /* exit */
@@ -14,10 +15,10 @@
 #include "optar.h"
 #include "parity.h"
 
-#define HEIGHT (2*BORDER+DATA_HEIGHT+TEXT_HEIGHT)
-#define TEXT_HEIGHT 24
+struct PageFormat format;
+struct PageConstants constants;
 
-static unsigned char ary[WIDTH * HEIGHT];
+static unsigned char *ary; //[WIDTH * HEIGHT];
 static unsigned char *file_label = (unsigned char *)""; /* The filename written in the file_label */
 static char *output_filename; /* The output filename */
 static unsigned output_filename_buffer_size;
@@ -32,9 +33,9 @@ void dump_ary(void) {
 		"P5\n"
 		"%u %u\n"
 		"255\n",
-		WIDTH, HEIGHT);
+		constants.width, constants.height);
 
-	fwrite(ary, sizeof(ary), 1, output_stream);
+	fwrite(ary, constants.width * constants.height, 1, output_stream);
 }
 
 /* Only the LSB is significant. Writes hamming-encoded bits. The sequence number
@@ -45,10 +46,10 @@ void write_channelbit(unsigned char bit, unsigned long seq) {
 	bit &= 1;
 	bit =- bit;
 	bit =~ bit; /* White=bit 0, black=bit 1 */
-	seq2xy(&x, &y, seq); /* Returns without borders! */
-	x += BORDER;
-	y += BORDER;
-	ary[x + y * WIDTH] = bit;
+	seq2xy(&constants, &x, &y, seq); /* Returns without borders! */
+	x += constants.format->border;
+	y += constants.format->border;
+	ary[x + y * constants.width] = bit;
 	seq++;
 }
 
@@ -64,57 +65,58 @@ unsigned long split(unsigned long in, unsigned bit) {
 /* Thie bits are always stored in the LSB side of the register. Only the
  * lowest FEC_SMALLBITS are taken into account on input. */
 unsigned long hamming(unsigned long in) {
-	in &= (1UL << FEC_SMALLBITS) - 1;
+	in &= (1UL << constants.fec_smallbits) - 1;
 
 	in <<= 3; /* Split 0,1,2 */
-#if FEC_ORDER >= 3
-	in = split(in, 4);
-#if FEC_ORDER >= 4
-	in = split(in, 8);
-#if FEC_ORDER >= 5
-	in = split(in, 16);
-	in |= parity(in & 0xffff0000) << 16;
-#endif
-	in |= parity(in & 0xff00ff00) << 8;
-#endif
-	in |= parity(in & 0xf0f0f0f0) << 4;
-#endif
+	if(constants.format->fec_order >= 3) {
+		in = split(in, 4);
+		if(constants.format->fec_order >= 4) {
+			in = split(in, 8);
+			if(constants.format->fec_order >= 5) {
+				in = split(in, 16);
+				in |= parity(in & 0xffff0000) << 16;
+			}
+			in |= parity(in & 0xff00ff00) << 8;
+		}
+		in |= parity(in & 0xf0f0f0f0) << 4;
+	}
 	in |= parity(in & 0xcccccccc) << 2;
 	in |= parity(in & 0xaaaaaaaa) << 1;
 	in |= parity(in);
+
 	return in;
 }
 
 void border(void) {
 	char *ptr = (char *)(void *)ary;
 
-	memset(ptr, 0, BORDER * WIDTH);
-	ptr += BORDER * WIDTH;
-	for(unsigned int c = DATA_HEIGHT; c; c--) {
-		memset(ptr, 0, BORDER);
-		ptr += WIDTH;
-		memset(ptr - BORDER, 0, BORDER);
+	memset(ptr, 0, constants.format->border * constants.width);
+	ptr += constants.format->border * constants.width;
+	for(unsigned int c = constants.data_height; c; c--) {
+		memset(ptr, 0, constants.format->border);
+		ptr += constants.width;
+		memset(ptr - constants.format->border, 0, constants.format->border);
 	}
-	memset(ptr, 0, TEXT_HEIGHT * WIDTH);
-	ptr += TEXT_HEIGHT * WIDTH;
+	memset(ptr, 0, constants.format->text_height * constants.width);
+	ptr += constants.format->text_height * constants.width;
 	/* BORDER bytes into the bottom border */
-	memset(ptr, 0, BORDER * WIDTH);
+	memset(ptr, 0, constants.format->border * constants.width);
 }
 
 void cross(int x, int y) {
-	unsigned char *ptr = ary + y * WIDTH + x;
+	unsigned char *ptr = ary + y * constants.width + x;
 
-	for (unsigned int c = CHALF; c; c--, ptr += WIDTH){
-		memset(ptr, 0, CHALF);
-		memset(ptr + CHALF, 0xff, CHALF);
-		memset(ptr + CHALF * WIDTH, 0xff, CHALF);
-		memset(ptr + CHALF * (WIDTH + 1), 0, CHALF);
+	for (unsigned int c = constants.format->chalf; c; c--, ptr += constants.width){
+		memset(ptr, 0, constants.format->chalf);
+		memset(ptr + constants.format->chalf, 0xff, constants.format->chalf);
+		memset(ptr + constants.format->chalf * constants.width, 0xff, constants.format->chalf);
+		memset(ptr + constants.format->chalf * (constants.width + 1), 0, constants.format->chalf);
 	}
 }
 
 void crosses(void) {
-	for (unsigned int y = BORDER; y <= HEIGHT - TEXT_HEIGHT - BORDER - 2 * CHALF; y += CPITCH) {
-		for (unsigned int x = BORDER; x <= WIDTH - BORDER - 2 * CHALF; x += CPITCH) {
+	for (unsigned int y = constants.format->border; y <= constants.height - constants.format->text_height - constants.format->border - 2 * constants.format->chalf; y += constants.format->cpitch) {
+		for (unsigned int x = constants.format->border; x <= constants.width - constants.format->border - 2 * constants.format->chalf; x += constants.format->cpitch) {
 			cross(x, y);
 		}
 	}
@@ -122,29 +124,34 @@ void crosses(void) {
 
 /* x is in the range 0 to DATA_WIDTH-1 */
 void text_block(int destx, int srcx, int width) {
-	if(destx + width > DATA_WIDTH) return; /* Letter doesn't fit */
+	if(destx + width > constants.data_width) return; /* Letter doesn't fit */
 
 	unsigned char *srcptr = (unsigned char *)(void *)header_data + srcx;
-	unsigned char *destptr = ary + WIDTH * (BORDER + DATA_HEIGHT) + BORDER + destx;
+	unsigned char *destptr = ary + constants.width * (constants.format->border + constants.data_height) + constants.format->border + destx;
 
-	for(int y = 0; y < TEXT_HEIGHT; y++, srcptr += font_width, destptr += WIDTH) {
-		for(int x=0; x < width; x++) {
+	for(int y = 0; y < constants.format->text_height; y++, srcptr += font_width, destptr += constants.width) {
+		for(int x = 0; x < width; x++) {
 			destptr[x] = header_data_cmap[srcptr[x]][0] & 0x80 ? 0xff : 0;
 		}
 	}
 }
 
 void label(void) {
-	static char txt[DATA_WIDTH / TEXT_WIDTH];
+	size_t txtsize = sizeof(char) * (constants.data_width / TEXT_WIDTH);
+	char *txt = (char *)malloc(txtsize);
+	if(!txt) {
+		fprintf(stderr, "Cannot allocate txt");
+		exit(1);
+	}
 
-	snprintf(txt, sizeof txt, "  0-%u-%u-%u-%u-%u-%u-%u %u/%u %s",
-		XCROSSES, YCROSSES, CPITCH, CHALF,
-		FEC_ORDER, BORDER, TEXT_HEIGHT,
+	snprintf(txt, txtsize, "  0-%u-%u-%u-%u-%u-%u-%u %u/%u %s",
+		constants.format->xcrosses, constants.format->ycrosses, constants.format->cpitch, constants.format->chalf,
+		constants.format->fec_order, constants.format->border, constants.format->text_height,
 		file_number, n_pages,
 		(char *)(void *)file_label);
 	unsigned int txtlen = strlen((char *)(void *)txt);
 
-	assert(font_height == TEXT_HEIGHT);
+	assert(font_height == constants.format->text_height);
 
 	int source_length = TEXT_WIDTH * (127 - ' ');
 	unsigned int x = font_width - source_length;
@@ -159,7 +166,7 @@ void label(void) {
 }
 
 void format_ary(void) {
-	memset(ary, 0xff, sizeof(ary)); /* White */
+	memset(ary, 0xff, constants.width * constants.height); /* White */
 	border();
 	crosses();
 	label();
@@ -193,18 +200,18 @@ void write_payloadbit(unsigned char bit) {
 
 	accu <<= 1;
 	accu |= bit & 1;
-	if(accu & (1UL << FEC_SMALLBITS)) {
+	if(accu & (1UL << constants.fec_smallbits)) {
 		/* Full payload */
 		int shift;
 
 		/* Expands from FEC_SMALLBITS bits to FEC_LARGEBITS */
-#if FEC_ORDER == 1
-		accu = golay(accu);
-#else
-		accu = hamming(accu);
-#endif /* FEC_ORDER */
+		if(constants.format->fec_order == 1) {
+			accu = golay(accu);
+		} else {
+			accu = hamming(accu);
+		}
 
-		if(hamming_symbol >= FEC_SYMS) {
+		if(hamming_symbol >= constants.fec_syms) {
 			/* We couldn't write into the page, we need to make
 			 * another one */
 			new_file();
@@ -212,8 +219,8 @@ void write_payloadbit(unsigned char bit) {
 		}
 
 		/* Write the symbol into the page */
-		for(shift = FEC_LARGEBITS - 1; shift >= 0; shift--) {
-			write_channelbit(accu>>shift, hamming_symbol + (FEC_LARGEBITS - 1 - shift) * FEC_SYMS);
+		for(shift = constants.fec_largebits - 1; shift >= 0; shift--) {
+			write_channelbit(accu>>shift, hamming_symbol + (constants.fec_largebits - 1 - shift) * constants.fec_syms);
 		}
 
 		accu = 1;
@@ -234,7 +241,7 @@ void feed_data(void) {
 	}
 
 	/* Flush the FEC with zeroes */
-	for(c = FEC_SMALLBITS - 1; c; c--) {
+	for(c = constants.fec_smallbits - 1; c; c--) {
 		write_payloadbit(0);
 	}
 
@@ -256,7 +263,7 @@ void open_input_file(char *fname) {
 		exit(1);
 	}
 
-	n_pages = (((unsigned long)ftell(input_stream) << 3) + NETBITS - 1) / NETBITS;
+	n_pages = (((unsigned long)ftell(input_stream) << 3) + constants.netbits - 1) / constants.netbits;
 	if(fseek(input_stream, 0, SEEK_SET)) {
 		fprintf(stderr, "optar: cannot seek to the beginning of %s: ", fname);
 		perror("");
@@ -285,6 +292,16 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 
+	prefill_pageformat(&format); // sane defaults
+	compute_constants(&constants, &format);
+	//print_pageconstants(&constants);
+
+	ary = (unsigned char *)malloc(sizeof(unsigned char) * constants.width * constants.height);
+	if(!ary) {
+		fprintf(stderr, "Canont allocate full array\n");
+		exit(1);
+	}
+
 	open_input_file(argv[1]);
 
 	if(argc >= 3) file_label = base = (void *)argv[2];
@@ -299,6 +316,7 @@ int main(int argc, char *argv[]) {
 	feed_data();
 	fclose(input_stream);
 	free(output_filename);
+	free(ary);
 
 	return 0;
 }
