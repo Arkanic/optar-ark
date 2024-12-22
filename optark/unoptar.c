@@ -8,8 +8,8 @@
 #include <assert.h> /* assert */
 #include <png.h> /* libpng. Sometimes is in /usr/local/include/libpng/png.h, but that is taken care of using -I/usr/local/include/libpng in the Makefile. */
 
-#include "optar.h"
-#include "parity.h"
+#include "lib/lib.h"
+#include "lib/parity.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846

@@ -12,8 +12,8 @@
 #undef width
 #undef height
 
-#include "optar.h"
-#include "parity.h"
+#include "lib/lib.h"
+#include "lib/parity.h"
 
 struct PageFormat format;
 struct PageConstants constants;

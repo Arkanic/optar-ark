@@ -3,7 +3,7 @@
 
 #include <stdio.h> /* fprintf */
 
-#include "optar.h"
+#include "lib.h"
 
 /* Compute constants from page configuration */
 void compute_constants(struct PageConstants *out, struct PageFormat *format) {
