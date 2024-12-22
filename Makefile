@@ -32,7 +32,7 @@ out/$(SUBDIRS)/%.o: optark/$(SUBDIRS)/%.c out/ $(SUBDIRS)
 out/%.o: optark/%.c out/
 	gcc -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
 
-out/golay: out/golay.o out/lib/parity.o
+out/golay: out/lib/golay.o out/lib/parity.o
 	gcc $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 out/golay_codes.c: out/golay

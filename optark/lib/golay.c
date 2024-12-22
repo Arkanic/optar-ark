@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include "lib/parity.h"
+#include "parity.h"
 
 int dodecahedron[12][5] = {
 	/* For each dodecahedron face (number in the comment, 1-12) there
