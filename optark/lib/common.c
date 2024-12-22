@@ -56,7 +56,7 @@ void print_pageconstants(struct PageConstants *constants) {
 	print_pageformat(constants->format);
 
 	fprintf(stderr,
-		"data_width: %lu\ndata_height: %lu\nwidth: %lu\nheight: %lu\n"
+		"data_width: %u\ndata_height: %u\nwidth: %lu\nheight: %lu\n"
 		"narrowheight: %u\ngapwidth: %u\nnarrowwidth: %lu\nnarrowpixels: %llu\n"
 		"wideheight: %u\nwidewidth: %lu\nwidepixels: %llu\n"
 		"repheight: %u\nreppixels: %llu\n"

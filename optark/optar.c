@@ -30,10 +30,9 @@ unsigned n_pages; /* Number of pages calculated from the file length */
 
 void dump_ary(void) {
 	fprintf(output_stream,
-		"P5\n"
-		"%u %u\n"
-		"255\n",
-		constants.width, constants.height);
+		"P5\n%lu %lu\n255\n",
+		constants.width, constants.height
+	);
 
 	fwrite(ary, constants.width * constants.height, 1, output_stream);
 }
