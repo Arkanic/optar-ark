@@ -73,6 +73,7 @@ struct PageConstants {
 
 /* Functions from common.c */
 extern void compute_constants(struct PageConstants *out, struct PageFormat *format);
+extern void print_pageformat(struct PageFormat *format);
 extern void print_pageconstants(struct PageConstants *constants);
 extern void prefill_pageformat(struct PageFormat *out);
 extern unsigned long parity(unsigned long in);

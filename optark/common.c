@@ -41,17 +41,21 @@ void compute_constants(struct PageConstants *out, struct PageFormat *format) {
 	out->usedbits = out->fec_syms * out->fec_largebits;
 }
 
-/* debug print constants */
-void print_pageconstants(struct PageConstants *constants) {
-	struct PageFormat *format = constants->format;
-	printf(
+/* debug print */
+void print_pageformat(struct PageFormat *format) {
+	fprintf(stderr,
 		"format:\n- xcrosses: %u\n- ycrosses: %u\n- cpitch: %u\n- chalf: %u\n"
 		"- fec_order: %u\n- border: %u\n- text_height: %u\n",
 		format->xcrosses, format->ycrosses, format->cpitch, format->chalf,
 		format->fec_order, format->border, format->text_height
 	);
+}
 
-	printf(
+/* debug print constants */
+void print_pageconstants(struct PageConstants *constants) {
+	print_pageformat(constants->format);
+
+	fprintf(stderr,
 		"data_width: %lu\ndata_height: %lu\nwidth: %lu\nheight: %lu\n"
 		"narrowheight: %u\ngapwidth: %u\nnarrowwidth: %lu\nnarrowpixels: %llu\n"
 		"wideheight: %u\nwidewidth: %lu\nwidepixels: %llu\n"
