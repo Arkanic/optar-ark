@@ -9,7 +9,7 @@ The original project, [Twibright OPTical ARchiver](http://ronja.twibright.com/op
 - [ ] Commandline support for configuring standard paper sizes, with custom KB per page densities
 - [ ] Support for multiple generic paper sizes without having to do annoying math
 - [ ] Look into interleaving golay/data sections between pages for high page counts
-- [25%] Modularisation of code so that it a) is all in one binary for cli usage and b) can be interfaced with as a c-style library
+- [75%] Modularisation of code so that it a) is all in one binary for cli usage and b) can be interfaced with as a c-style library
 - [ ] Cross-compilation to WASM
 
 ## Building
