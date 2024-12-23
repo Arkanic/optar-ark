@@ -11,19 +11,13 @@ struct PageConstants constants;
 
 void showhelp(void) {
 	fprintf(stderr,
+		"Usage: optar <input file> <output filename base>\n"
 		"\n"
-		"Usage: optar <input file> [filename base]\n"
-		"\n"
-		"Will take the input file as data payload and produce optar_out_????.pgm"
-		" which contain the input file encoded onto paper, with error"
-		" correction codes, and automatically split into multiple"
-		" files when necessary. Those pgm's are supposed to be printed"
-		" on laser printer at least 600 DPI for example using GIMP, or use the included pgm2ps to"
-		" convert them to PostScript and print for example"
-		" using a PostScript viewer program.\n"
+		"Takes the input file as the data payload and produces <output filename>_<0...n>.pgm files which contain"
+		"the input file encoded as a multiple images with error correction, ready to be printed.\n"
 		"\n"
 		"Options:\n"
-		"--help -h      display this message\n"
+		"--help -h                 display this message\n"
 	);
 }
 

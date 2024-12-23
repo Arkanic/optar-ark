@@ -10,26 +10,16 @@ struct PageFormat format;
 
 void showhelp(void) {
 	fprintf(stderr,
+		"Usage: unoptar <format> <input filename base (.png required)>\n"
 		"\n"
-		"usage: unoptar <format> <input filename base>\n"
-		"\n"
-		"Example: scan the pages into PNG (not JPEG!) on 600dpi (or 1200dpi, slightly better)\n"
-		"\n"
-		" scan_0001.png\n"
-		" scan_0002.png\n"
-		" scan_0003.png\n"
-		" ...\n"
-		"\n"
-		"Read the number sequence (format specification)"
-		" from any of the papers and feed it as 1st argument"
-		" to the optar, 2nd argument is the filename part"
-		" before the underscore:\n"
-		"unoptar 0-65-93-24-3-1-2-24 scan > out.ogg\n"
-		"out.ogg is just an example of payload file you can have any"
-		" kind of file instead.\n"
+		"Example: scan the pages as PNG at 600dpi or better, named like the following:\n"
+		" example_0001.png\n example_0002.png\n ...\n example_9999.png\n"
+		"The second argument is the filename base before the underscore, in this case \"example\":\n"
+		"unoptar 0-33-47-24-3-1-2-24 example > example.txt\n"
+		"where example.txt is replaced with whatever filename/format the original document contained.\n"
 		"\n"
 		"Options:\n"
-		"--help -h      display this message\n"
+		"--help -h                 display this message\n"
 	);
 }
 
