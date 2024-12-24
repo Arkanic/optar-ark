@@ -83,7 +83,7 @@ void prefill_pageformat(struct PageFormat *format) {
 	format->ycrosses = 47; // A4 100kb/p
 
 	format->fec_order = 1; // golay
-	
+
 	format->text_height = TEXT_HEIGHT; // constant, in px
 }
 

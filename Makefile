@@ -44,7 +44,7 @@ unoptar: out/unoptar.o out/liboptark.a out/arg.o
 optar: out/optar.o out/liboptark.a out/arg.o
 	gcc $(LDFLAGS) -o $@ $^
 
-out/liboptark.a: out/lib/liboptar.o out/lib/libunoptar.o out/lib/common.o out/lib/parity.o out/golay_codes.o
+out/liboptark.a: out/lib/liboptar.o out/lib/libunoptar.o out/lib/common.o out/lib/dimensions.o out/lib/parity.o out/golay_codes.o
 	ar -rcs $@ $^
 
 .PHONY: clean all install uninstall
