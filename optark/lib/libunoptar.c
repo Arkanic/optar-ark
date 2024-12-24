@@ -100,7 +100,6 @@ static struct Que *rptr, *wptr;
 static FILE *input_stream;
 static double output_gamma = 0.454545; /* What gamma the debug output has
 			      (output number=number of photons ^ gamma) */
-static long format_height; /* Used to be the HEIGHT macro. */
 static unsigned long golay_stats[5]; /* 0, 1, 2, 3, 4 damaged bits */
 
 /* -------------------- MAGIC CONSTANTS -------------------- */
@@ -239,7 +238,7 @@ static void analyze_cutlevel(void) {
 	if(iter==MAXITER) fprintf(stderr," Warning: cutting point analysis didn't converge in %u iterations.\n", MAXITER);
 }
 
-/* Returns -1 if fails. xin, yin are coordinates of the starting
+/* xin, yin are coordinates of the starting
  * corner. dx is which way to go away from the corner horizontally and
  * dy vertically. *outx, *outy will contain the address of the first black pixel
  * or (-1, -1) if none is found. */
@@ -349,7 +348,7 @@ fail:
 	bottomedge = MAX(corners[2][1], corners[3][1]);
 
 	hpixel = (corners[1][0] + corners[3][0] - corners[0][0] - corners[0][0]) / 2.0 / unoptarconstants.width;
-	vpixel = (corners[2][1] + corners[3][1] - corners[0][1] - corners[1][1]) / 2.0 / format_height;
+	vpixel = (corners[2][1] + corners[3][1] - corners[0][1] - corners[1][1]) / 2.0 / unoptarconstants.height;
 	fprintf(stderr, "One bit is %G horizontal pixels and %G vertical pixels.\n", hpixel, vpixel);
 
 	{
@@ -707,21 +706,21 @@ static void sync_crosses(void) {
 	/* Calculate the estimated cross pitch vectors */
 	double rightx = ((double)corners[1][0] + corners[3][0] - corners[0][0] - corners[2][0]) / 2 * unoptarconstants.format->cpitch / unoptarconstants.width;
 	double righty = ((double)corners[1][1] + corners[3][1] - corners[0][1] - corners[2][1]) / 2 * unoptarconstants.format->cpitch / unoptarconstants.width;
-	double downx =  ((double)corners[2][0] + corners[3][0] - corners[0][0] - corners[1][0]) / 2 * unoptarconstants.format->cpitch / format_height;
-	double downy =  ((double)corners[2][1] + corners[3][1] - corners[0][1] - corners[1][1]) / 2 * unoptarconstants.format->cpitch / format_height;
+	double downx =  ((double)corners[2][0] + corners[3][0] - corners[0][0] - corners[1][0]) / 2 * unoptarconstants.format->cpitch / unoptarconstants.height;
+	double downy =  ((double)corners[2][1] + corners[3][1] - corners[0][1] - corners[1][1]) / 2 * unoptarconstants.format->cpitch / unoptarconstants.height;
 
 	/* Load the upper left cross with an estimate of it's position */
 	crosses[0][0][0] = bilinear(
 		corners[0][0], corners[1][0],
 		corners[2][0], corners[3][0],
 		(double)(unoptarconstants.format->border + unoptarconstants.format->chalf) / unoptarconstants.width,
-		(double)(unoptarconstants.format->border + unoptarconstants.format->chalf) / format_height
+		(double)(unoptarconstants.format->border + unoptarconstants.format->chalf) / unoptarconstants.height
 	);
 	crosses[0][0][1] = bilinear(
 		corners[0][1], corners[1][1],
 		corners[2][1], corners[3][1],
 		(double)(unoptarconstants.format->border + unoptarconstants.format->chalf) / unoptarconstants.width,
-		(double)(unoptarconstants.format->border + unoptarconstants.format->chalf) / format_height
+		(double)(unoptarconstants.format->border + unoptarconstants.format->chalf) / unoptarconstants.height
 	);
 
 	fprintf(stderr,"Finding crosses (%u lines), numbers indicate "
@@ -1093,15 +1092,15 @@ static void read_syms(void) {
 
 /* Doesn't depend on width and height. */
 static void print_chan_info(void) {
-	fprintf(stderr, "Unformatted channel capacity %G kB, ",                      (double)unoptarconstants.width * format_height / 8 / 1000);
+	fprintf(stderr, "Unformatted channel capacity %G kB, ",                      (double)unoptarconstants.width * unoptarconstants.height / 8 / 1000);
 	fprintf(stderr, "formatted raw channel capacity %G kB, ",                    (double)unoptarconstants.totalbits / 8 / 1000);
 	fprintf(stderr, "net EC payload capacity %G kB, ",                           (double)unoptarconstants.netbits / 8 / 1000);
 	fprintf(stderr, "%llu EC symbols, ",                                         unoptarconstants.fec_syms);
 	fprintf(stderr, "%llu bits unused (incomplete Hamming symbol), ",            unoptarconstants.totalbits-unoptarconstants.usedbits);
-	fprintf(stderr, "border taking %G%% of unformatted capacity, ",              100 * (1 - (double)(unoptarconstants.data_width) * (unoptarconstants.data_height) / unoptarconstants.width / format_height));
-	fprintf(stderr, "border with crosses taking %G%% of unformatted capacity, ", 100 * (1 - (double)(unoptarconstants.totalbits) / unoptarconstants.width / format_height));
+	fprintf(stderr, "border taking %G%% of unformatted capacity, ",              100 * (1 - (double)(unoptarconstants.data_width) * (unoptarconstants.data_height) / unoptarconstants.width / unoptarconstants.height));
+	fprintf(stderr, "border with crosses taking %G%% of unformatted capacity, ", 100 * (1 - (double)(unoptarconstants.totalbits) / unoptarconstants.width / unoptarconstants.height));
 	fprintf(stderr,"border with crosses and EC taking %G%% of "
-		"unformatted capacity.\n",                                               100 * (1 - (double)(unoptarconstants.netbits) / unoptarconstants.width / format_height));
+		"unformatted capacity.\n",                                               100 * (1 - (double)(unoptarconstants.netbits) / unoptarconstants.width / unoptarconstants.height));
 }
 
 static void print_marks(void) {
@@ -1143,7 +1142,7 @@ static void blur_copy(void) {
 
 		for(long yctr = height - 2; yctr > 0; yctr--) {
 			*dest++ = *src++; /* Leftmost pixel */
-			for(long xctr= width - 2; xctr > 0; xctr--) {
+			for(long xctr = width - 2; xctr > 0; xctr--) {
 				int val = src[0] << 2;
 				val +=  (src[-1] + src[1] + *(src - width) + src[width]) << 1;
 				val += *(src - 1 - width) + *(src - width + 1) + src[width - 1] + src[width + 1];
@@ -1209,13 +1208,6 @@ static void process_minmax(void) {
 		fprintf(stderr, "%d ", i);
 	}
 	if(npix) fprintf(stderr,"\n");
-}
-
-/* Dimensions were originally fixed in macros. Now they are variable and can be
- * passed through commandline. This routine reclaculates them after they are
- * loaded from the commandline. */
-static void init_dimensions(void) {
-	format_height = 2 * unoptarconstants.format->border + unoptarconstants.data_height + unoptarconstants.format->text_height;
 }
 
 static void que_write(unsigned int x, unsigned int y) {
@@ -1499,9 +1491,6 @@ void unoptar_file(struct PageFormat *format, char *input_basename) {
 			exit(1);
 		}
 	}
-
-    /* This must after all dimension-related parameters are decoded. */
-	init_dimensions();
 
     print_chan_info();
     process_files(input_basename);
