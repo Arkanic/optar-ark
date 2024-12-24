@@ -48,3 +48,13 @@ void dimensions_createconfig(struct PageFormat *format, struct PageDimensions *d
     format->xcrosses = (unsigned int)xcrosses;
     format->ycrosses = (unsigned int)ycrosses;
 }
+
+/*
+ * Get payload capacity of dimension/density in bits
+ */
+unsigned long long dimensions_capacity(struct PageFormat *format) {
+    struct PageConstants constants;
+    compute_constants(&constants, format);
+
+    return constants.totalbits;
+}

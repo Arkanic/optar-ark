@@ -122,3 +122,4 @@ static struct PageDimensions dimensions[] = {
 struct PageDimensions *dimensions_get(char *name);
 void dimensions_landscape(struct PageDimensions *out, struct PageDimensions *in);
 void dimensions_createconfig(struct PageFormat *format, struct PageDimensions *dimensions, double density);
+unsigned long long dimensions_capacity(struct PageFormat *format);

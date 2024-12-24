@@ -9,7 +9,7 @@ The original project, [Twibright OPTical ARchiver](http://ronja.twibright.com/op
 - [x] Support for configuration customisation without recompiling the source code
 - [x] Add support for actually parsing the number string passed to `unoptar` to change unparse config, instead of ignoring and using compiled values in optar.h 
 - [x] Commandline support for configuring standard paper sizes, with custom KB per page densities
-- [ ] Optar display more helpful information about kb per page etc
+- [x] Optar display more helpful information about kb per page etc
 - [x] Support for multiple generic paper sizes without having to do annoying math
 - [ ] Look into interleaving golay/data sections between pages for high page counts
 - [75%] Modularisation of code so that it a) is all in one binary for cli usage and b) can be interfaced with as a c-style library

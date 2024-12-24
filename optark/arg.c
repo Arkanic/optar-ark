@@ -36,13 +36,10 @@ struct ArgHandle *arg_fromshortname(unsigned int handleslen, struct ArgHandle **
  * -1 generic fail
  * -2 not enough args to fufill overflowargs (should show help)
  * -3 too many overflow args
- * -4 not enough overflow args
  * -1xx invalid argument at argv index xx
  * -2xx argument at argv index xx is missing data field
  */
 int arg_parse(unsigned int handleslen, struct ArgHandle **handles, unsigned int overflowlen, char **overflowout, int argc, char *argv[]) {
-    if(argc < overflowlen + 1) return -2;
-
     int overflowindex = 0;
 
     for(int i = 1; i < argc; i++) {
@@ -84,7 +81,7 @@ int arg_parse(unsigned int handleslen, struct ArgHandle **handles, unsigned int 
     }
 
     if(overflowindex < overflowlen) { // we never got the full overflow requirement
-        return -4;
+        return -2;
     }
 
     return 0;
