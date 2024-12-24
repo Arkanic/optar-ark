@@ -10,8 +10,9 @@
 /* Get dimensions from name, NULL if not found */
 struct PageDimensions *dimensions_get(char *name) {
     char *lowername = malloc(sizeof(char) * (strlen(name) + 1));
+    lowername[strlen(name)] = '\0';
     if(!lowername) return NULL;
-    for(int i = 0; name[i]; i++) lowername[i] = tolower(name[i]);
+    for(int i = 0; i < strlen(name); i++) lowername[i] = tolower(name[i]);
 
     for(int i = 0; i < (sizeof(dimensions) / sizeof(dimensions[0])); i++) {
         if(!strcmp(dimensions[i].name, lowername)) {
