@@ -28,10 +28,8 @@ struct PageDimensions *dimensions_get(char *name) {
 /* swap dimensions to landscape mode */
 void dimensions_landscape(struct PageDimensions *out, struct PageDimensions *in) {
     out->name = in->name;
-
-    int tmp = in->height;
-    out->height = out->width;
-    out->width = tmp;
+    out->width = in->height;
+    out->height = in->width;
 }
 
 /* Get x/y crosses from provided dimensions & density (px/mm)
@@ -42,9 +40,11 @@ void dimensions_createconfig(struct PageFormat *format, struct PageDimensions *d
     unsigned long pixel_width = dimensions->width * density;
     unsigned long pixel_height = dimensions->height * density;
 
-    unsigned int xcrosses = ((pixel_width - 2*format->border - 2*format->chalf) / format->cpitch) + 1;
-    unsigned int ycrosses = ((pixel_height - 2*format->border - 2*format->chalf - format->text_height) / format->cpitch) + 1;
+    double xcrosses = ((pixel_width - 2*format->border - 2*format->chalf) / (float)format->cpitch) + 1.0f;
+    double ycrosses = ((pixel_height - 2*format->border - 2*format->chalf - format->text_height) / (float)format->cpitch) + 1.0f;
 
-    format->xcrosses = xcrosses;
-    format->ycrosses = ycrosses;
+    xcrosses = xcrosses + 0.5 - (xcrosses < 0);
+    ycrosses = ycrosses + 0.5 - (ycrosses < 0);
+    format->xcrosses = (unsigned int)xcrosses;
+    format->ycrosses = (unsigned int)ycrosses;
 }

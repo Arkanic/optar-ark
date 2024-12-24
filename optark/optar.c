@@ -19,7 +19,7 @@ void showhelp(void) {
 		"Options:\n"
 		"--help      -h                 display this message\n"
 		"--format <format>              generate output in this paper format. supports ISO A0-6 and standard US paper sizes.\n"
-		"--landscape -l                 use landscape format for output. This preserves the text at the bottom better for smaller sizes.\n"
+//		"--landscape -l                 use landscape format for output. This preserves the text at the bottom better for smaller sizes.\n"
 		"--density <density>            pixel density of the generated output. Higher density means more content stored per page,\n"
 		"                               but increases the printer and scanner precision required. 3.5 is a good default for inkjet printers.\n"
 		"\n"
@@ -70,7 +70,7 @@ struct ArgHandle densityarg = {
 	.datafield = 1,
 	.handlearg = &densityarg_cb
 };
-
+/*
 void landscapearg_cb(char *dummy) {
 	configuration.landscape = 1;
 }
@@ -80,8 +80,9 @@ struct ArgHandle landscapearg = {
 	.datafield = 0,
 	.handlearg = &landscapearg_cb
 };
+*/
 
-static struct ArgHandle *arghandles[] = {&helparg, &formatarg, &densityarg, &landscapearg};
+static struct ArgHandle *arghandles[] = {&helparg, &formatarg, &densityarg, /*&landscapearg*/};
 
 int main(int argc, char *argv[]) {
 	// set default
@@ -111,15 +112,13 @@ int main(int argc, char *argv[]) {
 		showhelp();
 		exit(1);
 	}
-
+/*
 	struct PageDimensions modified;
 	if(configuration.landscape) {
-		modified.name = configuration.format->name; // will not change so do not need to copy
-		modified.width = configuration.format->width;
-		modified.height = configuration.format->height;
+		dimensions_landscape(&modified, configuration.format);
 		configuration.format = &modified;
 	}
-
+*/
 	prefill_pageformat(&format); // sane defaults
 	dimensions_createconfig(&format, configuration.format, configuration.density);
 	optar_file(&format, inputoutput[0], inputoutput[1]);
