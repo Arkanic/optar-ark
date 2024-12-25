@@ -29,7 +29,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build
-        run: make target GCC=${{matrix.platform.gcc}} AR=${{matrix.platform.ar}} PACKAGE_NAME="optark-${{matrix.platform.name}}.zip"
+        run: make package GCC=${{matrix.platform.gcc}} AR=${{matrix.platform.ar}} PACKAGE_NAME="optark-${{matrix.platform.name}}.zip"
       
       - name: Upload Artifacts
         uses: Roang-zero1/github-upload-release-artifacts-action@v2
