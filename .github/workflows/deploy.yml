@@ -15,13 +15,13 @@ jobs:
             os: ubuntu-latest
             gcc: gcc
             ar: ar
-            packages: gcc
+            packages: gcc libpng-dev
         
           - name: Windows-X86_64
             os: ubuntu-latest
             gcc: x86_64-w64-mingw32-gcc
             ar: x86_64-w64-mingw32-ar
-            packages: gcc-mingw-w64-x86-64
+            packages: gcc-mingw-w64-x86-64 libpng-dev
 
     runs-on: ${{matrix.platform.os}}
     steps:
