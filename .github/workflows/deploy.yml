@@ -1,0 +1,33 @@
+name: Deployment
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  release:
+    name: Release ${{matrix.platform.name}}
+  
+    strategy:
+      matrix:
+        platform:
+          - name: Linux-X86_64
+            os: ubuntu-latest
+            gcc: gcc
+            ar: ar
+            packages: gcc libpng-dev
+
+    runs-on: ${{matrix.platform.os}}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build
+        run: make package GCC=${{matrix.platform.gcc}} AR=${{matrix.platform.ar}} PACKAGE_NAME="optark-${{matrix.platform.name}}.zip"
+      
+      - name: Upload Artifacts
+        uses: Roang-zero1/github-upload-release-artifacts-action@v2
+        with:
+          args: "optark-${{matrix.platform.name}}.zip"
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}

@@ -1,3 +1,6 @@
+CC=gcc
+AR=ar
+PACKAGE_NAME=out.zip
 LDFLAGS=-L/usr/local/lib
 CFLAGS=-O3 -Wall -Wuninitialized -fomit-frame-pointer -funroll-loops \
 	-fstrength-reduce -DNODEBUG -I/usr/local/include/libpng `libpng-config --I_opts`
@@ -27,24 +30,27 @@ $(SUBDIRS):
 	mkdir -p out/$(SUBDIRS)
 
 out/$(SUBDIRS)/%.o: optark/$(SUBDIRS)/%.c out/ $(SUBDIRS)
-	gcc -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
 
 out/%.o: optark/%.c out/
-	gcc -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
 
 out/golay: out/lib/golay.o out/lib/parity.o
-	gcc $(LDFLAGS) -o $@ $^ $(LDLIBS)
+	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 out/golay_codes.c: out/golay
 	./$< > $@
 
 unoptar: out/unoptar.o out/liboptark.a out/arg.o
-	gcc $(LDFLAGS) -o $@ $^ $(LDLIBS)
+	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 optar: out/optar.o out/liboptark.a out/arg.o
-	gcc $(LDFLAGS) -o $@ $^
+	$(CC) $(LDFLAGS) -o $@ $^
 
 out/liboptark.a: out/lib/liboptar.o out/lib/libunoptar.o out/lib/common.o out/lib/dimensions.o out/lib/parity.o out/golay_codes.o
-	ar -rcs $@ $^
+	$(AR) -rcs $@ $^
 
-.PHONY: clean all install uninstall
+package: all
+	zip -r $(PACKAGE_NAME) optar unoptar README.md doc
+
+.PHONY: clean all install uninstall package
