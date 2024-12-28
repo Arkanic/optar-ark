@@ -2,7 +2,7 @@ CC=gcc
 AR=ar
 PACKAGE_NAME=out.zip
 LDFLAGS=-L/usr/local/lib
-CFLAGS=-O3 -Wall -Wuninitialized -fomit-frame-pointer -funroll-loops -fstrength-reduce -DNODEBUG `libpng-config --I_opts`
+CFLAGS=-O3 -Wall -Wuninitialized -fomit-frame-pointer -funroll-loops -fstrength-reduce -DNODEBUG -lpng
 LDLIBS=-lpng -lz -lm
 
 SUBDIRS=lib
