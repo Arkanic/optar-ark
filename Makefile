@@ -1,7 +1,7 @@
 CC=gcc
 AR=ar
 PACKAGE_NAME=out.zip
-LDFLAGS=-L/usr/local/lib
+LDFLAGS=-lpng
 CFLAGS=-O3 -Wall -Wuninitialized -fomit-frame-pointer -funroll-loops -fstrength-reduce -DNODEBUG -lpng
 LDLIBS=-lpng -lz -lm
 
