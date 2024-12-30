@@ -22,6 +22,8 @@ The following libraries are required:
 
 Simply run `make` to build. `optar` and `unoptar` will appear in the current directory.
 
+`make install` with root privileges can be used to put the binaries in PATH for more convenient usage.
+
 ## Usage
 
 ### Optar
