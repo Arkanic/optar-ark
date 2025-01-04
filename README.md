@@ -5,6 +5,8 @@ This is a tool to represent and recover data (such as files, strings of text, or
 
 The original project, [Twibright OPTical ARchiver](http://ronja.twibright.com/optar/), was released in 2007. This fork aims to enhance the usability and modularity of the program, with the optimal end goal in mind being a web-based client.
 
+Additionally a rewrite in Rust is in progress.
+
 ## Features (intended)
 - [x] Support for configuration customisation without recompiling the source code
 - [x] Add support for actually parsing the number string passed to `unoptar` to change unparse config, instead of ignoring and using compiled values in optar.h 
@@ -13,6 +15,7 @@ The original project, [Twibright OPTical ARchiver](http://ronja.twibright.com/op
 - [x] Support for multiple generic paper sizes without having to do annoying math
 - [ ] Look into interleaving golay/data sections between pages for high page counts
 - [75%] Modularisation of code so that it a) is all in one binary for cli usage and b) can be interfaced with as a c-style library
+- [10%] Rewrite in Rust
 - [ ] Cross-compilation to WASM
 
 ## Building
@@ -55,6 +58,9 @@ ball_0001.png
 ball_0002.png
 ball_0003.png
 ```
+
+## Licensing
+The original Twibright-OPTAR codebase was licensed GPL, therefore the modified c version of this code is also licensed GPL. My Rust rewrite is licensed MIT, as I am building from scratch.
 
 ## Contact
 The best way to reach out would be by raising an issue on [Github](https://github.com/Arkanic/optar-ark)

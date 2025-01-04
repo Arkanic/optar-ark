@@ -1,0 +1,14 @@
+[package]
+name = "optark-rs"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+
+[lib]
+name = "liboptark"
+path = "src/lib/lib.rs"
+
+[[bin]]
+name = "optar"
+path = "src/optar.rs"
