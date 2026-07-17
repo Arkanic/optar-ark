@@ -1,4 +1,4 @@
-// Copyright (c) GPL 2024 Arkanic <https://github.com/Arkanic>
+// Copyright (c) GPL 2026 Arkanic <https://github.com/Arkanic>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,7 +10,7 @@ struct PageFormat format;
 
 void showhelp(void) {
 	fprintf(stderr,
-		"Usage: unoptar <format> <input filename base (.png required)>\n"
+		"Usage: unoptar <format> <input filename base (.png required)> <output filename>\n"
 		"\n"
 		"Example: scan the pages as PNG at 600dpi or better, named like the following:\n"
 		" example_0001.png\n example_0002.png\n ...\n example_9999.png\n"
@@ -56,8 +56,8 @@ static void parse_format(struct PageFormat *pageformat, char *format) {
  * text height (optional, defaults to 24)
  */
 int main(int argc, char *argv[]) {
-	char *inputoutput[2];
-	int result = arg_parse(sizeof(arghandles) / sizeof(arghandles[0]), arghandles, 2, inputoutput, argc, argv);
+	char *inputoutput[3];
+	int result = arg_parse(sizeof(arghandles) / sizeof(arghandles[0]), arghandles, 3, inputoutput, argc, argv);
 	if(result == -1) {
 		showhelp();
 		exit(1);
@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	parse_format(&format, inputoutput[0]);
-	unoptar_file(&format, inputoutput[1]);
+	unoptar_file(&format, inputoutput[1], inputoutput[2]);
 
 	return 0;
 }

@@ -1,5 +1,5 @@
 /* (c) GPL 2007 Karel 'Clock' Kulhavy, Twibright Labs */
-// Copyright (c) GPL 2024 Arkanic <https://github.com/Arkanic>
+// Copyright (c) GPL 2026 Arkanic <https://github.com/Arkanic>
 
 #include "optark.h"
 
@@ -8,6 +8,10 @@
 
 #define TEXT_WIDTH 13 /* Width of a single letter */
 #define TEXT_HEIGHT 24 /* Height of a single letter */
+
+// random string used to indicate when to cut off for end of file, large enough to not be accidentally mistaken, used to preseve zeroes at end of file vs blank spaces
+static unsigned char COMMON_EOF_CALLOUT[16] = {0x1e,0x02,0x55,0x50,0x2d,0xdd,0x4b,0xa4};
+#define EOF_CALLOUT_LEN 8
 
 /* Functions from common.c */
 extern void compute_constants(struct PageConstants *out, struct PageFormat *format);

@@ -1,5 +1,5 @@
 /* (c) GPL 2007 Karel 'Clock' Kulhavy, Twibright Labs */
-// Copyright (c) GPL 2024 Arkanic <https://github.com/Arkanic>
+// Copyright (c) GPL 2026 Arkanic <https://github.com/Arkanic>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -83,6 +83,9 @@ static unsigned long bad_01, bad_10; /* Flipped from 0 to 1 (black dirt),
 static unsigned long bad_total;
 static unsigned long irreparable;
 
+static unsigned char eof_callout_index = 0;
+static char eof_callout_check_buffer[EOF_CALLOUT_LEN];
+
 /* These macros shift coordinates by given amount of input pixels parallel
  * with recording axes. */
 #define PSHIFTX(x, dx, dy) ((x) + (dx) * pixelhx + (dy) * pixelvx)
@@ -98,6 +101,7 @@ static struct Que *que;
 static struct Que *que_end; /* First invalid */
 static struct Que *rptr, *wptr;
 static FILE *input_stream;
+static FILE *output_stream;
 static double output_gamma = 0.454545; /* What gamma the debug output has
 			      (output number=number of photons ^ gamma) */
 static unsigned long golay_stats[5]; /* 0, 1, 2, 3, 4 damaged bits */
@@ -797,15 +801,19 @@ static void bit_coord(double *xout, double *yout, float *cutlevel, int x, int y)
 	*yout = yd;
 }
 
-static void read_payload_bit(unsigned char bit) {
+static int read_payload_bit(unsigned char bit) {
 	static unsigned accu = 1;
 
 	accu <<= 1;
 	accu |= bit & 1;
 	if(accu & (1 << 8)){
-		putchar(accu & 0xff);
+		//putchar(accu & 0xff);
+		unsigned temp = accu;
 		accu = 1;
+		return temp & 0xff;
 	}
+
+	return -1;
 }
 
 /* Cuts out given bit and shifts the upper part */
@@ -1025,6 +1033,35 @@ static unsigned long unhamming(unsigned long in, unsigned long symno) {
 	return in;
 }
 
+static void submit_char(unsigned payload)
+{
+	// file already complete? just skip through until end of data read.
+	if(eof_callout_index >= EOF_CALLOUT_LEN) {
+		if(payload != 0x00) fprintf(stderr, "found nonzero bit after end of file: %c!!!\n", payload);
+		return;
+	}
+
+	// we should check every bit for start of end of file callout
+	if(payload == COMMON_EOF_CALLOUT[eof_callout_index]) {
+		eof_callout_check_buffer[eof_callout_index] = payload; // cache it and wait for others
+		eof_callout_index++;
+	} else {
+		// it wasn't a match, clear and write cache to file
+		for(char i = 0; i < eof_callout_index; i++) {
+			fputc(eof_callout_check_buffer[i], output_stream);
+		}
+		eof_callout_index = 0;
+
+		// now lets check new character for exact same thing...
+		if(payload == COMMON_EOF_CALLOUT[0]) {
+			eof_callout_check_buffer[0] = payload;
+			eof_callout_index = 1;
+		} else {
+			fputc(payload, output_stream);
+		}
+	}
+}
+
 static void read_hamming_bit(unsigned char input, unsigned long symno) {
 	static unsigned int accubits;
 	static unsigned long accu;
@@ -1039,7 +1076,12 @@ static void read_hamming_bit(unsigned char input, unsigned long symno) {
 			accu = unhamming(accu, symno);
 		}
 
-		for(int shift = unoptarconstants.fec_smallbits - 1; shift >= 0; shift--) read_payload_bit(accu >> shift);
+		for(int shift = unoptarconstants.fec_smallbits - 1; shift >= 0; shift--) {
+			int payload = read_payload_bit(accu >> shift);
+			if(payload == -1) continue;
+
+			submit_char((unsigned)payload);
+		}
 		accu = 0;
 		accubits = 0;
 	}
@@ -1412,7 +1454,13 @@ static void process_file(char *filename) {
 	free(newary);
 }
 
-static void process_files(char *base) {
+static void process_files(char *base, char *output) {
+	output_stream = fopen(output, "w");
+	if(output_stream == NULL) {
+		fprintf(stderr, "unoptar: cannot open output file\n");
+		exit(1);
+	}
+
 	unsigned int alloclen = strlen(base) + 1 + 4 + 1 + 5 + 1 + 3 + 1;
 	/* Longer filename */
 	char *longer = malloc(alloclen); /* _ 0001 _ debug . pgm \0 */
@@ -1445,11 +1493,14 @@ static void process_files(char *base) {
 		}
 		process_file(longer); /* Clobbers longer! Automatically closes input_stream! */
 	}
+
+	fclose(output_stream);
+	fprintf(stderr, "result written to %s\n", output);
 }
 
 // EXTERNAL FUNCTIONS START HERE
 
-void unoptar_file(struct PageFormat *format, char *input_basename) {
+void unoptar_file(struct PageFormat *format, char *input_basename, char *output_name) {
     compute_constants(&unoptarconstants, format);
 
     //[constants.format->xcrosses][constants.format->ycrosses][2]
@@ -1493,7 +1544,7 @@ void unoptar_file(struct PageFormat *format, char *input_basename) {
 	}
 
     print_chan_info();
-    process_files(input_basename);
+    process_files(input_basename, output_name);
 
     // free cutlevels
 	for(int x = 0; x < unoptarconstants.format->xcrosses; x++) {

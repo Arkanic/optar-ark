@@ -1,5 +1,5 @@
 /* (c) GPL 2007 Karel 'Clock' Kulhavy, Twibright Labs */
-// Copyright (c) GPL 2024 Arkanic <https://github.com/Arkanic>
+// Copyright (c) GPL 2026 Arkanic <https://github.com/Arkanic>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -240,6 +240,11 @@ void feed_data(void) {
 	int c;
 	while((c=fgetc(input_stream))!=EOF) {
 		write_byte(c);
+	}
+
+	// feed EOC string for end of file
+	for(unsigned char i = 0; i < EOF_CALLOUT_LEN; i++) {
+		write_byte(COMMON_EOF_CALLOUT[i]);
 	}
 
 	/* Flush the FEC with zeroes */

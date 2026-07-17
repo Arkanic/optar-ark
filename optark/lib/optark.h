@@ -1,4 +1,4 @@
-// Copyright (c) GPL 2024 Arkanic <https://github.com/Arkanic>
+// Copyright (c) GPL 2026 Arkanic <https://github.com/Arkanic>
 
 /* configuration struct of optar page */
 struct PageFormat {
@@ -80,7 +80,7 @@ int optar_file(struct PageFormat *format, char *input_filename, char *output_bas
 // libunoptar.c
 
 /* Parse a series of optar files from an input basename and configuration object */
-void unoptar_file(struct PageFormat *format, char *input_basename);
+void unoptar_file(struct PageFormat *format, char *input_basename, char *output_name);
 
 
 

@@ -1,4 +1,4 @@
-// Copyright (c) GPL 2024 Arkanic <https://github.com/Arkanic>
+// Copyright (c) GPL 2026 Arkanic <https://github.com/Arkanic>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -56,5 +56,5 @@ unsigned long long dimensions_capacity(struct PageFormat *format) {
     struct PageConstants constants;
     compute_constants(&constants, format);
 
-    return constants.totalbits;
+    return constants.netbits;
 }
