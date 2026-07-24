@@ -134,6 +134,14 @@ void text_block(int destx, int srcx, int width) {
 	}
 }
 
+void txtconstants(char *txt, size_t txtsize) {
+	snprintf(txt, txtsize, "  0-%u-%u-%u-%u-%u-%u-%u %u/%u %s",
+		optarconstants.format->xcrosses, optarconstants.format->ycrosses, optarconstants.format->cpitch, optarconstants.format->chalf,
+		optarconstants.format->fec_order, optarconstants.format->border, optarconstants.format->text_height,
+		file_number, n_pages,
+		(char *)(void *)file_label);
+}
+
 void label(void) {
 	size_t txtsize = sizeof(char) * (optarconstants.data_width / TEXT_WIDTH);
 	char *txt = (char *)malloc(txtsize);
@@ -142,11 +150,7 @@ void label(void) {
 		exit(1);
 	}
 
-	snprintf(txt, txtsize, "  0-%u-%u-%u-%u-%u-%u-%u %u/%u %s",
-		optarconstants.format->xcrosses, optarconstants.format->ycrosses, optarconstants.format->cpitch, optarconstants.format->chalf,
-		optarconstants.format->fec_order, optarconstants.format->border, optarconstants.format->text_height,
-		file_number, n_pages,
-		(char *)(void *)file_label);
+	txtconstants(txt, txtsize);
 	unsigned int txtlen = strlen((char *)(void *)txt);
 
 	assert(font_height == optarconstants.format->text_height);
@@ -282,6 +286,9 @@ void open_input_file(char *fname) {
 
 int optar_file(struct PageFormat *format, char *input_filename, char *output_basename) {
     compute_constants(&optarconstants, format);
+	char constants[512];
+	txtconstants(constants, 512);
+	fprintf(stderr, "%s\n", constants);
 
     ary = (unsigned char *)malloc(sizeof(unsigned char) * optarconstants.width * optarconstants.height);
 	if(!ary) {
